@@ -1,0 +1,97 @@
+/* Custom CSS for the NIT Hamirpur Results App */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+/* Header styling */
+.header {
+    background-color: #5e2572;
+    color: white;
+    padding: 20px 0;
+    margin-bottom: 30px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+/* Card styling */
+.card {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #f1f1f1;
+    font-weight: 600;
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: #5e2572;
+    border-color: #5e2572;
+}
+
+.btn-primary:hover {
+    background-color: #4a1d5e;
+    border-color: #4a1d5e;
+}
+
+/* Table styling */
+.table th {
+    background-color: #f1f1f1;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Grade coloring */
+.grade-A {
+    background-color: #d4edda;
+}
+
+.grade-AB {
+    background-color: #e0f3e6;
+}
+
+.grade-B {
+    background-color: #fff3cd;
+}
+
+.grade-BC {
+    background-color: #ffe5d0;
+}
+
+.grade-C {
+    background-color: #f8d7da;
+}
+
+/* Footer styling */
+.footer {
+    text-align: center;
+    margin-top: 30px;
+    padding: 20px 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .student-info {
+        text-align: center;
+    }
+}

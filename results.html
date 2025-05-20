@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Results - NIT Hamirpur</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .results-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #5e2572;
+            color: white;
+            border-radius: 8px;
+        }
+        .student-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .nav-tabs {
+            margin-bottom: 20px;
+        }
+        .nav-tabs .nav-link {
+            color: #495057;
+            font-weight: 500;
+        }
+        .nav-tabs .nav-link.active {
+            color: #5e2572;
+            font-weight: 600;
+        }
+        .semester-heading {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .table-responsive {
+            margin-bottom: 20px;
+        }
+        .table th {
+            background-color: #f1f1f1;
+        }
+        .sgpi-info {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .chart-container {
+            height: 300px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+        .btn-back {
+            margin-top: 20px;
+            background-color: #5e2572;
+            border-color: #5e2572;
+        }
+        .btn-back:hover {
+            background-color: #4a1d5e;
+            border-color: #4a1d5e;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #6c757d;
+            font-size: 0.9rem;
+            padding-bottom: 20px;
+        }
+        .grade-A {
+            background-color: #d4edda;
+        }
+        .grade-AB {
+            background-color: #e0f3e6;
+        }
+        .grade-B {
+            background-color: #fff3cd;
+        }
+        .grade-BC {
+            background-color: #ffe5d0;
+        }
+        .grade-C {
+            background-color: #f8d7da;
+        }
+    </style>
+</head>
+<body>
+    <div class="container results-container">
+        <div class="header">
+            <h1>NIT Hamirpur Student Results</h1>
+        </div>
+        
+        <div class="student-info">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Roll Number</h5>
+                    <p class="fw-bold">{{ results.student_info.roll_number }}</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Student Name</h5>
+                    <p class="fw-bold">{{ results.student_info.name }}</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Father's Name</h5>
+                    <p class="fw-bold">{{ results.student_info.father_name }}</p>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <h5>Current CGPI</h5>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {{ (results.cgpi/10)*100 }}%;" 
+                             aria-valuenow="{{ results.cgpi }}" aria-valuemin="0" aria-valuemax="10">
+                            {{ results.cgpi }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <ul class="nav nav-tabs" id="resultTabs" role="tablist">
+            {% for semester in results.semesters %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if loop.first %}active{% endif %}" 
+                        id="semester{{ semester.semester.replace('S', '') }}-tab" 
+                        data-bs-toggle="tab" 
+                        data-bs-target="#semester{{ semester.semester.replace('S', '') }}" 
+                        type="button" role="tab" 
+                        aria-controls="semester{{ semester.semester.replace('S', '') }}" 
+                        aria-selected="{% if loop.first %}true{% else %}false{% endif %}">
+                    Semester {{ semester.semester.replace('S', '') }}
+                </button>
+            </li>
+            {% endfor %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" 
+                        id="performance-tab" 
+                        data-bs-toggle="tab" 
+                        data-bs-target="#performance" 
+                        type="button" role="tab" 
+                        aria-controls="performance" 
+                        aria-selected="false">
+                    Performance
+                </button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="resultTabsContent">
+            {% for semester in results.semesters %}
+            <div class="tab-pane fade {% if loop.first %}show active{% endif %}" 
+                 id="semester{{ semester.semester.replace('S', '') }}" 
+                 role="tabpanel" 
+                 aria-labelledby="semester{{ semester.semester.replace('S', '') }}-tab">
+                
+                <h3 class="semester-heading">Semester {{ semester.semester.replace('S', '') }} Results</h3>
+                
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Subject</th>
+                                <th>Code</th>
+                                <th>Credits</th>
+                                <th>Grade</th>
+                                <th>Grade Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for subject in semester.subjects %}
+                            <tr class="grade-{{ subject.grade }}">
+                                <td>{{ loop.index }}</td>
+                                <td>{{ subject.name }}</td>
+                                <td>{{ subject.code }}</td>
+                                <td>{{ subject.credits }}</td>
+                                <td>{{ subject.grade }}</td>
+                                <td>{{ subject.grade_points }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="sgpi-info">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h5>SGPI</h5>
+                            <p class="fw-bold">{{ semester.sgpi }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h5>Total Grade Points</h5>
+                            <p class="fw-bold">{{ semester.total_grade_points }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h5>Credits Attempted</h5>
+                            <p class="fw-bold">{{ semester.credits_attempted }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <div class="tab-pane fade" id="performance" role="tabpanel" aria-labelledby="performance-tab">
+                <h3 class="semester-heading">Academic Performance Analysis</h3>
+                
+                <div class="chart-container">
+                    <canvas id="sgpiChart"></canvas>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                SGPI Progression
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Semester</th>
+                                            <th>SGPI</th>
+                                            <th>Change</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for semester in results.semesters %}
+                                        <tr>
+                                            <td>{{ semester.semester }}</td>
+                                            <td>{{ semester.sgpi }}</td>
+                                            <td>
+                                                {% if not loop.first %}
+                                                    {% set prev_sgpi = results.semesters[loop.index0-1].sgpi %}
+                                                    {% set diff = semester.sgpi - prev_sgpi %}
+                                                    {% if diff > 0 %}
+                                                        <span class="text-success">+{{ "%.2f"|format(diff) }}</span>
+                                                    {% elif diff < 0 %}
+                                                        <span class="text-danger">{{ "%.2f"|format(diff) }}</span>
+                                                    {% else %}
+                                                        <span class="text-secondary">0.00</span>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <span class="text-secondary">-</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                CGPI Progression
+                            </div>
+                            <div class="card-body">
+                                <p>Current CGPI: <strong>{{ results.cgpi }}</strong></p>
+                                <p>Total Credits: <strong>{{ results.total_credits }}</strong></p>
+                                <p>Total Grade Points: <strong>{{ results.total_grade_points }}</strong></p>
+                                
+                                <div class="alert alert-info mt-3">
+                                    <h5>Performance Summary</h5>
+                                    <p>
+                                        Based on the academic record, the student has shown 
+                                        {% if results.semesters|length > 1 and results.semesters[-1].sgpi > results.semesters[0].sgpi %}
+                                            improvement
+                                        {% elif results.semesters|length > 1 and results.semesters[-1].sgpi < results.semesters[0].sgpi %}
+                                            a slight decline
+                                        {% else %}
+                                            consistent performance
+                                        {% endif %}
+                                        over the semesters.
+                                    </p>
+                                </div>
+                                
+                                <div class="text-center mt-4">
+                                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#advancedAnalysisModal">
+                                        <i class="bi bi-graph-up"></i> Advanced Analysis
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center">
+            <a href="{{ url_for('results.search_results') }}" class="btn btn-primary btn-back">Back to Search</a>
+        </div>
+        
+        <div class="footer">
+            <p>Developed as a student project. Not affiliated with NIT Hamirpur official website.</p>
+            <p>Data is scraped from <a href="http://results.nith.ac.in/scheme22/studentresult/index.asp" target="_blank">results.nith.ac.in</a></p>
+        </div>
+    </div>
+    
+    <!-- Advanced Analysis Modal -->
+    <div class="modal fade" id="advancedAnalysisModal" tabindex="-1" aria-labelledby="advancedAnalysisModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="advancedAnalysisModalLabel">Advanced Academic Performance Analysis</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <!-- Student Information Section -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header bg-light">
+                                        <h5>Student Information</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled">
+                                            <li><strong>Name:</strong> {{ results.student_info.name }}</li>
+                                            <li><strong>Roll Number:</strong> {{ results.student_info.roll_number }}</li>
+                                            <li><strong>Father's Name:</strong> {{ results.student_info.father_name }}</li>
+                                            <li><strong>Program:</strong> {% if "BEC" in results.student_info.roll_number %}B.Tech. in Electronics and Communication Engineering{% elif "BCS" in results.student_info.roll_number %}B.Tech. in Computer Science and Engineering{% elif "BCE" in results.student_info.roll_number %}B.Tech. in Civil Engineering{% elif "BME" in results.student_info.roll_number %}B.Tech. in Mechanical Engineering{% else %}B.Tech. Program{% endif %}</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Semester-wise Performance Analysis 
+(Content truncated due to size limit. Use line ranges to read in chunks)
